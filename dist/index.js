@@ -50,7 +50,7 @@ app.use(_express2.default.static('public'));
 // database
 _mongoose2.default.Promise = _q2.default.Promise;
 _mongoose2.default.connect(_config2.default.mongoConnect);
-// application
+// application 
 app.get("*", function (req, res) {
   res.sendFile(_path2.default.resolve('server', 'index.html'));
 });
