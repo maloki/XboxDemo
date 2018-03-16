@@ -26798,7 +26798,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _templateObject = _taggedTemplateLiteral(["\n  background-color:#000;\n  width:100%;\n  height:100vh;\n  .pusher{\n    width:10px;\n    height:20000px;\n  }\n  h1{\n    color:#94C83E;\n    font-size: 22px;\n  }\n  .content{\n    position:relative;\n    z-index: 9;\n\n  }\n"], ["\n  background-color:#000;\n  width:100%;\n  height:100vh;\n  .pusher{\n    width:10px;\n    height:20000px;\n  }\n  h1{\n    color:#94C83E;\n    font-size: 22px;\n  }\n  .content{\n    position:relative;\n    z-index: 9;\n\n  }\n"]),
-    _templateObject2 = _taggedTemplateLiteral(["\n  background-color:#000;\n  width:100%;\n  height:100vh;\n  position:fixed;\n  top:0;\n  left:0;\n  z-index:1;\n  .floatingElements{\n    z-index: 1;\n    .element{\n      position:fixed;\n      top:0;\n      left:0;\n      width:10px;\n      height:10px;\n      background-color: #fff;\n      border-radius: 50%;\n    }\n  }\n"], ["\n  background-color:#000;\n  width:100%;\n  height:100vh;\n  position:fixed;\n  top:0;\n  left:0;\n  z-index:1;\n  .floatingElements{\n    z-index: 1;\n    .element{\n      position:fixed;\n      top:0;\n      left:0;\n      width:10px;\n      height:10px;\n      background-color: #fff;\n      border-radius: 50%;\n    }\n  }\n"]);
+    _templateObject2 = _taggedTemplateLiteral(["\n  position:fixed;\n  z-index:99;\n  border-radius: 50%;\n  overflow: hidden;\n  .moon{\n    width:64px;\n    height:64px;\n    background-image:url('/static/moon.png');\n    background-size: cover;\n    background-repeat: no-repeat;\n    background-position: center;\n    overflow: hidden;\n\n    .moonOverlay{\n      width:100%;\n      height:100%;\n      z-index:20;\n      border-radius: 50%;\n      background-color: rgba(255,255,255,.9)\n    }\n    .moonPhase{\n      position:absolute;\n      top:0;\n      left:0;\n      width:100%;\n      height:100%;\n      z-index:11;\n      border-radius: 50%;\n      background-color: rgba(0,0,0,1);\n    }\n  }\n"], ["\n  position:fixed;\n  z-index:99;\n  border-radius: 50%;\n  overflow: hidden;\n  .moon{\n    width:64px;\n    height:64px;\n    background-image:url('/static/moon.png');\n    background-size: cover;\n    background-repeat: no-repeat;\n    background-position: center;\n    overflow: hidden;\n\n    .moonOverlay{\n      width:100%;\n      height:100%;\n      z-index:20;\n      border-radius: 50%;\n      background-color: rgba(255,255,255,.9)\n    }\n    .moonPhase{\n      position:absolute;\n      top:0;\n      left:0;\n      width:100%;\n      height:100%;\n      z-index:11;\n      border-radius: 50%;\n      background-color: rgba(0,0,0,1);\n    }\n  }\n"]),
+    _templateObject3 = _taggedTemplateLiteral(["\n  background: #fff;\n  width:100%;\n  height:100vh;\n  position:fixed;\n  top:0;\n  left:0;\n  z-index:1;\n  .floatingElements{\n    z-index: 1;\n    .element{\n      position:fixed;\n      top:0;\n      left:0;\n      width:10px;\n      height:10px;\n      background-color: #fff;\n      border-radius: 50%;\n    }\n  }\n"], ["\n  background: #fff;\n  width:100%;\n  height:100vh;\n  position:fixed;\n  top:0;\n  left:0;\n  z-index:1;\n  .floatingElements{\n    z-index: 1;\n    .element{\n      position:fixed;\n      top:0;\n      left:0;\n      width:10px;\n      height:10px;\n      background-color: #fff;\n      border-radius: 50%;\n    }\n  }\n"]),
+    _templateObject4 = _taggedTemplateLiteral(["\n  width:100%;\n  height:10000px;\n"], ["\n  width:100%;\n  height:10000px;\n"]);
 
 var _react = __webpack_require__(1);
 
@@ -26820,6 +26822,10 @@ var _zenscroll = __webpack_require__(95);
 
 var _zenscroll2 = _interopRequireDefault(_zenscroll);
 
+var _moonInfo = __webpack_require__(98);
+
+var _moonInfo2 = _interopRequireDefault(_moonInfo);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26832,21 +26838,26 @@ function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defi
 
 var Wrapper = _styledComponents2.default.div(_templateObject);
 
-var Overlay = _styledComponents2.default.div(_templateObject2);
+var Moon = _styledComponents2.default.div(_templateObject2);
+//box-shadow: 9px 20px 99px 0px #fff;
+var Overlay = _styledComponents2.default.div(_templateObject3);
+var Push = _styledComponents2.default.div(_templateObject4);
 //old background size width:{min:10,max:30}
 var rnd = {
   xMargin: { min: 30, max: 80 },
   yMargin: { min: 30, max: 80 },
   width: { min: 7, max: 20 }
 };
+var scrollPercentage = 0;
+var scrollPercentageBackup = 0;
 var lastScrollPosition = 0;
 var scrollRatio = { min: 5, max: 12 };
 var scaleRatio = { min: 1, max: 2 };
 var isScrolling = false;
 //vertical
-var speedAcceleration = 0.3;
-var speedMax = 9;
-var speedBrakingRatio = 0.2;
+var speedAcceleration = 0.1;
+var speedMax = 1;
+var speedBrakingRatio = 0.06;
 // horizontal
 var horizontalSpeedRatio = 0.05;
 var horizontalSpeedMax = 1;
@@ -26865,9 +26876,27 @@ var currentGlobalScroll = 0;
 var isJustScrolled = false;
 var isScrollActive = false;
 var isStartProcedure = false;
-var startProcedureBrakingRatio = 3;
+var startProcedureBrakingRatio = 5;
 var isMobileDevice = false;
-var backgroundColors = ["#7D6CDC", "#A6A197", "#fff", "#3D4D4F", "#1810CD", "#1267DB"];
+var backgroundColors = ["#fff"];
+var background = {
+  topGradient: {
+    actuall: [255, 255, 255],
+    min: [22, 56, 110],
+    max: [0, 0, 0]
+  },
+  bottomGradient: {
+    actuall: [255, 255, 255],
+    min: [83, 117, 153],
+    max: [0, 0, 0]
+  }
+  // moon variables
+};var moon = {
+  x: 0,
+  y: 0,
+  overlayColor: [0, 0, 0]
+};
+var simulateMode = false;
 
 var Index = function (_Component) {
   _inherits(Index, _Component);
@@ -26891,6 +26920,9 @@ var Index = function (_Component) {
     value: function componentWillMount() {
       var _this2 = this;
 
+      document.onkeypress = function (e) {
+        return _this2.listenForKey(e);
+      };
       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         isMobileDevice = true;
       }
@@ -26920,8 +26952,8 @@ var Index = function (_Component) {
         var xCenter = Math.round(window.innerWidth / 2);
         var yCenter = Math.round(window.innerHeight / 2);
         list.push({
-          x: xCenter,
-          y: yCenter,
+          x: this.getRandomNumber(0, window.innerWidth),
+          y: this.getRandomNumber(0, window.innerHeight),
           width: 1,
           height: 1,
           angle: this.getRandomNumber(-180, 180),
@@ -26945,6 +26977,7 @@ var Index = function (_Component) {
       this.setState(_extends({}, this.state, { backgroundFloatingElements: list, content: { y: document.documentElement.scrollTop } }), function () {
         return _this2.applyAnimationToElements();
       });
+      console.log("phase ", new _moonInfo2.default(6, 1, 2017));
     }
   }, {
     key: "componentDidMount",
@@ -27010,36 +27043,21 @@ var Index = function (_Component) {
         if (speed === 100) isStartProcedure = true;
         if (speed < 10) isStartProcedure = false;
         if (isStartProcedure) speed -= startProcedureBrakingRatio;
-        if (isScrolling) {
-          if (speed <= speedMax) {
-            speed += speedAcceleration;
-          }
+        speed -= speedBrakingRatio;
+        distance += speed;
+        if (speed < 0.1) speed = 0.1;
+        if (speed > 0) {
           if (!scrollUp) {
-            distance += speed;
+            w = distance / 300;
           } else {
-            distance -= speed;
+            w = distance / 300;
           }
         }
-        if (!isScrolling && speed > 0) {
-          if (speed > 1) speed -= speedBrakingRatio;
-          if (!scrollUp) {
-            distance += speed;
-          } else {
-            distance -= speed;
-          }
-        }
-        if (speed < 1) speed = 1;
-        if (isScrolling || speed > 0) {
-          if (!scrollUp) {
-            w = distance / 200;
-          } else {
-            w = distance / 200;
-          }
-        }
+        if (i === 0) {}
         /// DODAJ GAZU AREEEEK
         x = Math.round(Math.cos(el.angle * Math.PI / 180) * distance + Math.round(window.innerWidth / 2));
         y = Math.round(Math.sin(el.angle * Math.PI / 180) * distance + Math.round(window.innerHeight / 2));
-        if ((x < 0 || x > window.innerWidth || y < 0 || y > window.innerHeight) && !scrollUp) {
+        if (x < 0 || x > window.innerWidth || y < 0 || y > window.innerHeight) {
           distance = _this3.getRandomNumber(0, 100);
           angle = _this3.getRandomNumber(-180, 180);
           scaleRatio = _this3.getRandomDoubleFromDigit(1, 9, 10);
@@ -27047,32 +27065,6 @@ var Index = function (_Component) {
           color = backgroundColors[_this3.getRandomNumber(0, backgroundColors.length - 1)];
           w = 0;
           h = 0;
-        }
-        if (w <= 0 && h <= 0 && scrollUp) {
-          var random = _this3.getRandomNumber(0, 1);
-          if (random === 0) {
-            x = _this3.getRandomNumber(0, 1) === 0 ? 0 : window.innerWidth;
-            y = _this3.getRandomNumber(0, window.innerHeight);
-          } else {
-            x = _this3.getRandomNumber(0, window.innerWidth);
-            y = _this3.getRandomNumber(0, 1) === 0 ? 0 : window.innerHeight;
-          }
-          /*  if(x === window.innerWidth && y <= Math.round(window.innerHeight / 2))
-              angle = this.getRandomNumber(-90, 0)
-            if(x === window.innerWidth && y >= Math.round(window.innerHeight / 2))
-              angle = this.getRandomNumber(0, 90)
-            if(y === window.innerHeight && x <= Math.round(window.innerWidth / 2))
-              angle = this.getRandomNumber(90, -180)
-            if(y === window.innerWidth && x >= Math.round(window.innerWidth / 2))
-              angle = this.getRandomNumber(-180, 0)*/
-          startX = x;
-          startY = y;
-          var a = window.innerWidth / 2 - x;
-          var b = window.innerHeight / 2 - y;
-          distance = Math.sqrt(a * a + b * b);
-          //angle = Math.atan2(x - Math.round(window.innerWidth / 2), y - Math.round(window.innerHeight / 2)) * 180.0/Math.PI
-          angle = _this3.getRandomNumber(-180, 180);
-          color = backgroundColors[_this3.getRandomNumber(0, backgroundColors.length - 1)];
         }
         // verticalSpeed
         /*  let scaleDown, w
@@ -27136,6 +27128,13 @@ var Index = function (_Component) {
           color: color
         });
       });
+      var body = document.body,
+          html = document.documentElement;
+      if (!simulateMode) {
+        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        var percent = scrollPosition / (height - window.innerHeight);
+        scrollPercentage = Math.min(1, Math.max(percent, 0)) * 100;
+      }
       // content units
       /*  let yContent = this.state.content.y
         if(isScrolling){
@@ -27162,12 +27161,63 @@ var Index = function (_Component) {
         if(content.verticalSpeed < 0)
           content.verticalSpeed = 0
           */
+
+      this.calculateMoon();
       this.setState(_extends({}, this.state, {
         backgroundFloatingElements: list,
         content: _extends({}, this.state.content)
       }), function () {
         return window.requestAnimationFrame(_this3.applyAnimationToElements.bind(_this3));
       });
+    }
+  }, {
+    key: "calculateMoon",
+    value: function calculateMoon() {
+      if (simulateMode) {
+        if (scrollPercentage >= 100) {
+          simulateMode = false;
+        } else {
+          scrollPercentage += 0.1;
+        }
+      }
+      var topGradient = background.topGradient.actuall;
+      var bottomGradient = background.bottomGradient.actuall;
+      topGradient.map(function (g, i) {
+        var diff = background.topGradient.min[i];
+        background.topGradient.actuall[i] = Math.round(-(scrollPercentage / 100 * diff - diff));
+      });
+      bottomGradient.map(function (g, i) {
+        var diff = background.bottomGradient.min[i];
+        background.bottomGradient.actuall[i] = Math.round(-(scrollPercentage / 100 * diff - diff));
+      });
+      var t = scrollPercentage / 100;
+      var Ax = (1 - t) * window.innerWidth + t * window.innerWidth;
+      var Ay = (1 - t) * window.innerHeight + t * 0;
+      var Bx = (1 - t) * (window.innerWidth / 2) + t * 0;
+      var By = (1 - t) * 0 + t * 0;
+      var Cx = (1 - t) * 0 + t * 0;
+      var Cy = (1 - t) * 0 + t * 0;
+      var Dx = (1 - t) * Ax + t * Bx;
+      var Dy = (1 - t) * Ay + t * By;
+      var Ex = (1 - t) * Bx + t * Cx;
+      var Ey = (1 - t) * By + t * Cy;
+      var Px = (1 - t) * Dx + t * Ex;
+      var Py = (1 - t) * Dy + t * Ey;
+      moon.x = Px;
+      moon.y = Py;
+      // overlay color
+      moon.overlayColor.map(function (g, i) {
+        var diff = 800;
+        moon.overlayColor[i] = Math.round(scrollPercentage / 100 * diff);
+      });
+    }
+  }, {
+    key: "listenForKey",
+    value: function listenForKey(e) {
+      if (e.keyCode === 116 || e.which === 116 || e.key === 116 || e.code === 116) {
+        scrollPercentageBackup = scrollPercentage;
+        simulateMode = true;
+      }
     }
   }, {
     key: "render",
@@ -27177,7 +27227,9 @@ var Index = function (_Component) {
         null,
         _react2.default.createElement(
           Overlay,
-          null,
+          { style: {
+              background: "linear-gradient(rgba(" + background.topGradient.actuall[0] + ", " + background.topGradient.actuall[1] + ", " + background.topGradient.actuall[2] + ", 1), rgba(" + background.bottomGradient.actuall[0] + ", " + background.bottomGradient.actuall[1] + ", " + background.bottomGradient.actuall[2] + ", 1))"
+            } },
           _react2.default.createElement(
             "div",
             { className: "floatingElements" },
@@ -27197,10 +27249,15 @@ var Index = function (_Component) {
             })
           )
         ),
+        _react2.default.createElement(Push, null),
         _react2.default.createElement(
-          "div",
-          { className: "content", style: { marginTop: -this.state.content.y } },
-          _react2.default.createElement(_welcomeUnit2.default, null)
+          Moon,
+          { style: { left: moon.x + "px", top: moon.y + "px" } },
+          _react2.default.createElement(
+            "div",
+            { className: "moon" },
+            _react2.default.createElement("div", { className: "moonOverlay", style: { backgroundColor: "rgba(" + moon.overlayColor[0] + ", " + moon.overlayColor[1] + ", " + moon.overlayColor[2] + ", 0.6)" } })
+          )
         )
       );
     }
@@ -29444,6 +29501,147 @@ var WelcomeUnit = function (_Component) {
 }(_react.Component);
 
 exports.default = WelcomeUnit;
+
+/***/ }),
+/* 97 */,
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var MoonInfo = function MoonInfo(day, month, year) {
+    var n0 = parseInt("0");
+    var f0 = parseFloat("0.0");
+    var AG = f0; // Moon's age
+    var DI = f0; // Moon's distance in earth radii
+    var LA = f0; // Moon's ecliptic latitude
+    var LO = f0; // Moon's ecliptic longitude
+    var Phase = " ";
+    var Zodiac = " ";
+
+    // Related to month length and age calculations
+    var n28 = parseInt("28");
+    var n30 = parseInt("30");
+    var n31 = parseInt("31");
+    var dim = new Array(n31, n28, n31, n30, n31, n30, n31, n31, n30, n31, n30, n31);
+
+    day = parseInt(day, 10);
+    month = parseInt(month, 10);
+    year = parseInt(year, 10);
+
+    moon_posit(year, month, day);
+    this.age = round2(AG);
+    this.distance = round2(DI);
+    this.phase = Phase;
+    this.latitude = round2(LA);
+    this.longitude = round2(LO);
+    this.zodiac = Zodiac;
+
+    function isdayofmonth(y, m, d) {
+        if (m != 2) {
+            if (1 <= d && d <= dim[m - 1]) {
+                return true;
+            } else {
+                return false;
+            };
+        }
+
+        var feb = dim[1];
+        if (isleapyear(y)) feb += 1; // is leap year
+        if (1 <= d && d <= feb) return true;
+        return false;
+    }
+
+    function isleapyear(y) {
+        var x = Math.floor(y - 4 * Math.floor(y / 4));
+        var w = Math.floor(y - 100 * Math.floor(y / 100));
+        var z = Math.floor(y - 400 * Math.floor(y / 400));
+
+        if (x == 0) {
+            // possible leap year
+            if (w == 0 && z != 0) {
+                return false; // not leap year
+            } else {
+                return true; // is leap year
+            };
+        }
+
+        return false;
+    }
+
+    // compute moon position and phase
+    function moon_posit(Y, M, D) {
+        var YY = n0,
+            MM = n0,
+            K1 = n0,
+            K2 = n0,
+            K3 = n0,
+            JD = n0,
+            IP = f0,
+            DP = f0,
+            NP = f0,
+            RP = f0;
+
+        // calculate the Julian date at 12h UT
+        YY = Y - Math.floor((12 - M) / 10);
+        MM = M + 9;
+        if (MM >= 12) MM = MM - 12;
+
+        K1 = Math.floor(365.25 * (YY + 4712));
+        K2 = Math.floor(30.6 * MM + 0.5);
+        K3 = Math.floor(Math.floor(YY / 100 + 49) * 0.75) - 38;
+
+        JD = K1 + K2 + D + 59; // for dates in Julian calendar
+        if (JD > 2299160) JD = JD - K3; // for Gregorian calendar
+
+        // calculate moon's age in days
+        IP = normalize((JD - 2451550.1) / 29.530588853);
+        AG = IP * 29.53;
+
+        if (AG < 1.84566) Phase = "A new moon";else if (AG < 5.53699) Phase = "An evening crescent";else if (AG < 9.22831) Phase = "A first quarter";else if (AG < 12.91963) Phase = "A waxing gibbous";else if (AG < 16.61096) Phase = "A full moon";else if (AG < 20.30228) Phase = "A waning gibbous";else if (AG < 23.99361) Phase = "A Last quarter";else if (AG < 27.68493) Phase = "A Morning crescent";else Phase = "A new moon";
+
+        IP = IP * 2 * Math.PI; // Convert phase to radians
+
+        // calculate moon's distance
+        DP = 2 * Math.PI * normalize((JD - 2451562.2) / 27.55454988);
+        DI = 60.4 - 3.3 * Math.cos(DP) - 0.6 * Math.cos(2 * IP - DP) - 0.5 * Math.cos(2 * IP);
+
+        // calculate moon's ecliptic latitude
+        NP = 2 * Math.PI * normalize((JD - 2451565.2) / 27.212220817);
+        LA = 5.1 * Math.sin(NP);
+
+        // calculate moon's ecliptic longitude
+        RP = normalize((JD - 2451555.8) / 27.321582241);
+        LO = 360 * RP + 6.3 * Math.sin(DP) + 1.3 * Math.sin(2 * IP - DP) + 0.7 * Math.sin(2 * IP);
+
+        // correcting if longitude is not greater than 360!
+        if (LO > 360) LO = LO - 360;
+    }
+
+    // round to 2 decimal places
+    function round2(x) {
+        return Math.round(100 * x) / 100.0;
+    }
+
+    // normalize values to range 0...1
+    function normalize(v) {
+        v = v - Math.floor(v);
+        if (v < 0) v = v + 1;
+
+        return v;
+    }
+
+    if (!isdayofmonth(year, month, day)) {
+        alert("Invalid date");
+        return;
+    }
+};
+
+exports.default = MoonInfo;
 
 /***/ })
 /******/ ]);

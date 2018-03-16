@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import styled from 'styled-components'
 import WelcomeUnit from './welcomeUnit.js'
 import zenscroll from "zenscroll"
+import calculateMoonPhase from './moon-info.js'
 
 const Wrapper = styled.div`
   background-color:#000;
@@ -23,8 +24,42 @@ const Wrapper = styled.div`
   }
 `
 
+const Moon = styled.div`
+  position:fixed;
+  z-index:99;
+  border-radius: 50%;
+  overflow: hidden;
+  .moon{
+    width:64px;
+    height:64px;
+    background-image:url('/static/moon.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow: hidden;
+
+    .moonOverlay{
+      width:100%;
+      height:100%;
+      z-index:20;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,.9)
+    }
+    .moonPhase{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      z-index:11;
+      border-radius: 50%;
+      background-color: rgba(0,0,0,1);
+    }
+  }
+`
+//box-shadow: 9px 20px 99px 0px #fff;
 const Overlay = styled.div`
-  background-color:#000;
+  background: #fff;
   width:100%;
   height:100vh;
   position:fixed;
@@ -44,20 +79,26 @@ const Overlay = styled.div`
     }
   }
 `
+const Push = styled.div`
+  width:100%;
+  height:10000px;
+`
 //old background size width:{min:10,max:30}
 const rnd = {
   xMargin:{min:30,max:80},
   yMargin:{min:30,max:80},
   width:{min:7,max:20}
 }
+let scrollPercentage = 0
+let scrollPercentageBackup = 0
 let lastScrollPosition = 0
 const scrollRatio = {min: 5, max: 12}
 const scaleRatio = {min: 1, max: 2}
 let isScrolling = false
 //vertical
-const speedAcceleration = 0.3
-const speedMax = 9
-const speedBrakingRatio = 0.2
+const speedAcceleration = 0.1
+const speedMax = 1
+const speedBrakingRatio = 0.06
 // horizontal
 const horizontalSpeedRatio = 0.05
 const horizontalSpeedMax = 1
@@ -76,10 +117,28 @@ let currentGlobalScroll = 0
 let isJustScrolled = false
 let isScrollActive = false
 let isStartProcedure = false
-const startProcedureBrakingRatio = 3
+const startProcedureBrakingRatio = 5
 let isMobileDevice = false
-const backgroundColors = ["#7D6CDC", "#A6A197", "#fff", "#3D4D4F", "#1810CD", "#1267DB"]
-
+const backgroundColors = ["#fff"]
+let background = {
+  topGradient: {
+    actuall:[255,255,255],
+    min:[22, 56, 110],
+    max:[0,0,0]
+  },
+  bottomGradient: {
+    actuall: [255,255,255],
+    min:[83, 117, 153],
+    max:[0,0,0]
+  },
+}
+// moon variables
+let moon = {
+  x: 0,
+  y: 0,
+  overlayColor: [0,0,0]
+}
+let simulateMode = false
 class Index extends Component {
   state = {
     backgroundFloatingElements: [],
@@ -90,6 +149,7 @@ class Index extends Component {
     this.handleScroll = this.handleScroll.bind(this)
   }
   componentWillMount(){
+    document.onkeypress = (e) => this.listenForKey(e)
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
        isMobileDevice = true
     }
@@ -119,8 +179,8 @@ class Index extends Component {
       const xCenter = Math.round(window.innerWidth / 2)
       const yCenter = Math.round(window.innerHeight / 2)
       list.push({
-        x:xCenter,
-        y:yCenter,
+        x:this.getRandomNumber(0, window.innerWidth),
+        y:this.getRandomNumber(0, window.innerHeight),
         width:1,
         height: 1,
         angle: this.getRandomNumber(-180,180),
@@ -142,6 +202,7 @@ class Index extends Component {
       nextElementYMargin = this.getRandomNumber(rnd.yMargin.min, rnd.yMargin.max)
     }
     this.setState({...this.state, backgroundFloatingElements: list, content: {y: document.documentElement.scrollTop}}, () => this.applyAnimationToElements())
+    console.log("phase ", new calculateMoonPhase(6,1,2017))
   }
   componentDidMount(){
     window.addEventListener('scroll', this.handleScroll);
@@ -199,38 +260,23 @@ class Index extends Component {
         isStartProcedure = false
       if(isStartProcedure)
         speed -= startProcedureBrakingRatio
-      if(isScrolling){
-        if(speed <= speedMax){
-          speed += speedAcceleration
-        }
+      speed -= speedBrakingRatio
+      distance += speed
+      if(speed < 0.1)
+        speed = 0.1
+      if(speed > 0){
         if(!scrollUp){
-          distance += speed
+          w = distance / 300
         }else{
-          distance -= speed
+          w = distance / 300
         }
       }
-      if(!isScrolling && speed > 0){
-        if(speed > 1)
-          speed -= speedBrakingRatio
-        if(!scrollUp){
-          distance += speed
-        }else{
-          distance -= speed
-        }
-      }
-      if(speed < 1)
-        speed = 1
-      if(isScrolling || speed > 0){
-        if(!scrollUp){
-          w = distance / 200
-        }else{
-          w = distance / 200
-        }
+      if(i === 0){
       }
       /// DODAJ GAZU AREEEEK
       x = Math.round(Math.cos(el.angle * Math.PI/180) * distance + Math.round(window.innerWidth / 2))
       y = Math.round(Math.sin(el.angle * Math.PI/180) * distance + Math.round(window.innerHeight / 2))
-      if(((x < 0 || x > window.innerWidth) || (y < 0 || y > window.innerHeight)) && !scrollUp){
+      if(((x < 0 || x > window.innerWidth) || (y < 0 || y > window.innerHeight))){
         distance = this.getRandomNumber(0,100)
         angle = this.getRandomNumber(-180,180)
         scaleRatio = this.getRandomDoubleFromDigit(1, 9, 10)
@@ -238,32 +284,7 @@ class Index extends Component {
         color = backgroundColors[this.getRandomNumber(0, backgroundColors.length -1)]
         w = 0
         h = 0
-      }
-      if(w <= 0 && h <= 0 && scrollUp){
-        let random = this.getRandomNumber(0,1)
-        if(random === 0){
-          x = this.getRandomNumber(0, 1) === 0 ? 0 : window.innerWidth
-          y = this.getRandomNumber(0, window.innerHeight)
-        }else{
-          x = this.getRandomNumber(0, window.innerWidth)
-          y = this.getRandomNumber(0, 1) === 0 ? 0 : window.innerHeight
-        }
-      /*  if(x === window.innerWidth && y <= Math.round(window.innerHeight / 2))
-          angle = this.getRandomNumber(-90, 0)
-        if(x === window.innerWidth && y >= Math.round(window.innerHeight / 2))
-          angle = this.getRandomNumber(0, 90)
-        if(y === window.innerHeight && x <= Math.round(window.innerWidth / 2))
-          angle = this.getRandomNumber(90, -180)
-        if(y === window.innerWidth && x >= Math.round(window.innerWidth / 2))
-          angle = this.getRandomNumber(-180, 0)*/
-        startX = x
-        startY = y
-        let a = (window.innerWidth / 2) - x
-        let b = (window.innerHeight / 2) - y
-        distance = Math.sqrt(a*a + b*b)
-        //angle = Math.atan2(x - Math.round(window.innerWidth / 2), y - Math.round(window.innerHeight / 2)) * 180.0/Math.PI
-        angle = this.getRandomNumber(-180, 180)
-        color = backgroundColors[this.getRandomNumber(0, backgroundColors.length -1)]
+
       }
       // verticalSpeed
     /*  let scaleDown, w
@@ -327,6 +348,14 @@ class Index extends Component {
         color: color
       })
     })
+    var body = document.body,
+    html = document.documentElement;
+    if(!simulateMode){
+      var height = Math.max( body.scrollHeight, body.offsetHeight,
+                         html.clientHeight, html.scrollHeight, html.offsetHeight );
+      let percent = (scrollPosition)/(height - window.innerHeight)
+      scrollPercentage = Math.min(1,Math.max(percent, 0)) * 100
+    }
     // content units
   /*  let yContent = this.state.content.y
     if(isScrolling){
@@ -353,16 +382,68 @@ class Index extends Component {
     if(content.verticalSpeed < 0)
       content.verticalSpeed = 0
       */
+
+    this.calculateMoon()
     this.setState({
       ...this.state,
       backgroundFloatingElements: list,
       content: {...this.state.content}
     }, () => window.requestAnimationFrame(this.applyAnimationToElements.bind(this)))
   }
+  calculateMoon(){
+    if(simulateMode){
+      if(scrollPercentage >= 100){
+        simulateMode = false
+      }else{
+        scrollPercentage += 0.1
+      }
+    }
+    let topGradient = background.topGradient.actuall
+    let bottomGradient = background.bottomGradient.actuall
+    topGradient.map((g,i) => {
+      let diff = background.topGradient.min[i]
+      background.topGradient.actuall[i] = Math.round(-(((scrollPercentage / 100) * diff) - diff))
+    })
+    bottomGradient.map((g,i) => {
+      let diff = background.bottomGradient.min[i]
+      background.bottomGradient.actuall[i] = Math.round(-(((scrollPercentage / 100) * diff) - diff))
+    })
+    let t = scrollPercentage / 100
+    let Ax = ( (1 - t) * window.innerWidth ) + (t * window.innerWidth);
+    let Ay = ( (1 - t) * window.innerHeight ) + (t * 0);
+    let Bx = ( (1 - t) * (window.innerWidth/2) ) + (t * 0);
+    let By = ( (1 - t) * 0 ) + (t * 0);
+    let Cx = ( (1 - t) * 0 ) + (t * 0);
+    let Cy = ( (1 - t) * 0 ) + (t * 0);
+    let Dx = ( (1 - t) * Ax ) + (t * Bx);
+    let Dy = ( (1 - t) * Ay ) + (t * By);
+    let Ex = ( (1 - t) * Bx ) + (t * Cx);
+    let Ey = ( (1 - t) * By ) + (t * Cy);
+    let Px = ( (1 - t) * Dx ) + (t * Ex);
+    let Py = ( (1 - t) * Dy ) + (t * Ey);
+    moon.x = Px
+    moon.y = Py
+    // overlay color
+    moon.overlayColor.map((g,i) => {
+      let diff = 800
+      moon.overlayColor[i] = Math.round((((scrollPercentage / 100) * diff)))
+    })
+  }
+  listenForKey(e){
+    if(e.keyCode === 116 || e.which === 116 || e.key === 116 || e.code === 116){
+      scrollPercentageBackup = scrollPercentage
+      simulateMode = true
+    }
+  }
   render() {
       return (
         <Wrapper>
-        <Overlay>
+        <Overlay style={
+          {
+            background: "linear-gradient(rgba("+background.topGradient.actuall[0]+", "+background.topGradient.actuall[1]+", "+background.topGradient.actuall[2]+
+            ", 1), rgba("+background.bottomGradient.actuall[0]+", "+background.bottomGradient.actuall[1]+", "+background.bottomGradient.actuall[2]+", 1))"
+          }
+        }>
           <div className="floatingElements">
             {this.state.backgroundFloatingElements.map((el, i) => {
               return(<div
@@ -382,9 +463,13 @@ class Index extends Component {
             })}
           </div>
         </Overlay>
-        <div className="content" style={{marginTop: -(this.state.content.y)}}>
-          <WelcomeUnit />
-        </div>
+        <Push/>
+        <Moon style={{left: moon.x + "px", top: moon.y + "px"}}>
+          <div className="moon">
+            <div className="moonOverlay" style={{backgroundColor:"rgba("+moon.overlayColor[0]+", "+moon.overlayColor[1]+", "+moon.overlayColor[2]+", 0.6)"}}></div>
+            {/*<div className="moonPhase"></div>*/}
+          </div>
+        </Moon>
         </Wrapper>
      )
    }
